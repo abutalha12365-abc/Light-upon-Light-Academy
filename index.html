@@ -826,7 +826,7 @@
       <!-- Form -->
       <div class="bg-white rounded-2xl p-7 md:p-8 border border-cream-dark fade-up">
         <h3 class="font-display text-2xl font-bold text-forest mb-6">Send Us a Message</h3>
-        <form id="contactForm" class="space-y-4" onsubmit="handleFormSubmit(event)">
+        <form id="contactForm" class="space-y-4" action="https://formspree.io/f/xrewpnyp" method="POST" onsubmit="handleFormSubmit(event)">
           <div class="grid sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold text-charcoal/60 mb-1.5 font-body uppercase tracking-wide">Your Name</label>
@@ -1149,10 +1149,30 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   /* ── Form ── */
-  function handleFormSubmit(e) {
+  async function handleFormSubmit(e) {
     e.preventDefault();
-    document.getElementById('contactForm').style.display = 'none';
-    document.getElementById('formSuccess').classList.remove('hidden');
+    const form = document.getElementById('contactForm');
+    const btn = form.querySelector('button[type="submit"]');
+    const origText = btn.textContent;
+    btn.textContent = 'Sending…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('https://formspree.io/f/xrewpnyp', {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        form.style.display = 'none';
+        document.getElementById('formSuccess').classList.remove('hidden');
+      } else {
+        btn.textContent = 'Failed — please try again';
+        btn.disabled = false;
+      }
+    } catch {
+      btn.textContent = 'Network error — please try again';
+      btn.disabled = false;
+    }
   }
 </script>
 </body>
